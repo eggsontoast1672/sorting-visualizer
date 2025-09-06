@@ -1,5 +1,6 @@
 pub trait Sorter {
     fn step(&mut self, data: &mut [usize]) -> bool;
+    fn current(&self) -> usize;
 }
 
 pub struct BubbleSorter {
@@ -44,5 +45,9 @@ impl Sorter for BubbleSorter {
 
         self.current += 1;
         return false;
+    }
+
+    fn current(&self) -> usize {
+        self.current
     }
 }

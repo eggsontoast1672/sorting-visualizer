@@ -1,23 +1,13 @@
 mod sorters;
 
-use ::rand::seq::SliceRandom;
 use clap::{Parser, ValueEnum};
-use macroquad::prelude::*;
+use rand::seq::SliceRandom;
+use raylib::prelude::*;
 
 use crate::sorters::{BubbleSorter, Sorter};
 
 const WINDOW_WIDTH: i32 = 800;
 const WINDOW_HEIGHT: i32 = 600;
-
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "Sorting Visualizer".into(),
-        window_width: WINDOW_WIDTH,
-        window_height: WINDOW_HEIGHT,
-        window_resizable: false,
-        ..Default::default()
-    }
-}
 
 #[derive(Clone, Debug, ValueEnum)]
 enum SortingAlgorithm {
@@ -35,7 +25,7 @@ impl std::fmt::Display for SortingAlgorithm {
 
 #[derive(Parser)]
 struct Args {
-    #[arg(short, long, default_value_t = SortingAlgorithm::Quick)]
+    #[arg(short, long, default_value_t = SortingAlgorithm::Bubble)]
     algorithm: SortingAlgorithm,
 
     #[arg(short, long, default_value_t = 100)]
@@ -56,29 +46,52 @@ fn create_sorter(alg: SortingAlgorithm, data_length: usize) -> impl Sorter {
     }
 }
 
-fn draw_data(data: &[usize]) {
+/// Draw the numeric data to the screen.
+///
+/// Each number in the slice is rendered as a block. The height of each block is relative to the
+/// size of the largest number in the data set. The number currently being sorted is rendered as a
+/// red block which takes up the entire height of the window.
+fn draw_data(d: &mut RaylibDrawHandle, data: &[usize], current: usize, is_done: bool) {
     for (index, number) in data.iter().enumerate() {
         let block_width = WINDOW_WIDTH as f32 / data.len() as f32;
-        let block_height = *number as f32 / data.len() as f32 * WINDOW_HEIGHT as f32;
-        draw_rectangle(
-            index as f32 * block_width,
-            WINDOW_HEIGHT as f32 - block_height,
-            block_width,
-            block_height,
-            WHITE,
+        let (block_height, color) = if index == current && !is_done {
+            (WINDOW_HEIGHT as f32, Color::RED)
+        } else {
+            (
+                *number as f32 / data.len() as f32 * WINDOW_HEIGHT as f32,
+                Color::WHITE,
+            )
+        };
+
+        d.draw_rectangle_rec(
+            Rectangle {
+                x: index as f32 * block_width,
+                y: WINDOW_HEIGHT as f32 - block_height,
+                width: block_width,
+                height: block_height,
+            },
+            color,
         );
     }
 }
 
-#[macroquad::main(window_conf)]
-async fn main() {
+fn main() {
     let args = Args::parse();
+    let (mut rl, thread) = raylib::init()
+        .size(WINDOW_WIDTH, WINDOW_HEIGHT)
+        .title("Sorting Visualizer")
+        .build();
+
+    rl.set_target_fps(240);
+
     let mut data = create_data(args.num_elements);
     let mut sorter = create_sorter(args.algorithm, data.len());
 
-    loop {
-        draw_data(&data);
-        sorter.step(&mut data);
-        next_frame().await;
+    while !rl.window_should_close() {
+        let is_done = sorter.step(&mut data);
+
+        let mut d = rl.begin_drawing(&thread);
+        d.clear_background(Color::BLACK);
+        draw_data(&mut d, &data, sorter.current(), is_done);
     }
 }

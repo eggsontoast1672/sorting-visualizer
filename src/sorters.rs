@@ -1,6 +1,6 @@
 pub trait Sorter {
     fn step(&mut self, data: &mut [usize]) -> bool;
-    fn current(&self) -> usize;
+    fn pointers(&self) -> Vec<usize>;
 }
 
 pub struct BubbleSorter {
@@ -35,19 +35,82 @@ impl Sorter for BubbleSorter {
         }
 
         if data[self.current] > data[self.current + 1] {
-            // SAFETY: the indices self.current and self.current + 1 cannot possibly be the same,
-            // since no number is equal to itself plus 1.
-            let [a, b] =
-                unsafe { data.get_disjoint_unchecked_mut([self.current, self.current + 1]) };
-
-            std::mem::swap(a, b);
+            data.swap(self.current, self.current + 1);
         }
 
         self.current += 1;
         return false;
     }
 
-    fn current(&self) -> usize {
-        self.current
+    fn pointers(&self) -> Vec<usize> {
+        vec![self.current]
+    }
+}
+
+pub struct QuickSorter {
+    stack: Vec<(usize, usize)>,
+    current_low: usize,
+    current_high: usize,
+    left_pointer: usize,
+    right_pointer: usize,
+}
+
+impl QuickSorter {
+    pub fn new(data_length: usize) -> Self {
+        Self {
+            stack: Vec::new(),
+            current_low: 0,
+            current_high: data_length - 1,
+            left_pointer: 0,
+            right_pointer: 0,
+        }
+    }
+
+    fn repartition(&mut self) -> bool {
+        // Set up the new blocks to sort, if needed. We push the lower block last so that it
+        // will be processed first.
+        if self.left_pointer + 1 < self.current_high {
+            self.stack.push((self.left_pointer + 1, self.current_high));
+        }
+
+        if self.current_low < self.left_pointer - 1 {
+            self.stack.push((self.current_low, self.left_pointer - 1));
+        }
+
+        let Some((low, high)) = self.stack.pop() else {
+            return true;
+        };
+
+        self.current_low = low;
+        self.current_high = high;
+        self.left_pointer = low;
+        self.right_pointer = low;
+
+        false
+    }
+}
+
+impl Sorter for QuickSorter {
+    fn step(&mut self, data: &mut [usize]) -> bool {
+        // At this point, we have completed the partitioning step. Let's choose new low and high
+        // and reset everything.
+        if self.right_pointer >= self.current_high {
+            data.swap(self.left_pointer, self.current_high);
+            if self.repartition() {
+                return true;
+            }
+        }
+
+        if data[self.right_pointer] < data[self.current_high] {
+            data.swap(self.left_pointer, self.right_pointer);
+            self.left_pointer += 1;
+        }
+
+        self.right_pointer += 1;
+        false
+    }
+
+    fn pointers(&self) -> Vec<usize> {
+        vec![self.left_pointer, self.right_pointer]
     }
 }

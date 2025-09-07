@@ -1,6 +1,34 @@
+use rand::seq::SliceRandom;
+
 pub trait Sorter {
     fn step(&mut self, data: &mut [usize]) -> bool;
     fn pointers(&self) -> Vec<usize>;
+}
+
+pub struct BogoSorter {
+    random_pointer: usize,
+}
+
+impl BogoSorter {
+    pub const fn new() -> Self {
+        Self { random_pointer: 0 }
+    }
+}
+
+impl Sorter for BogoSorter {
+    fn step(&mut self, data: &mut [usize]) -> bool {
+        if data.is_sorted() {
+            return true;
+        }
+
+        data.shuffle(&mut rand::rng());
+        self.random_pointer = rand::random_range(0..data.len());
+        false
+    }
+
+    fn pointers(&self) -> Vec<usize> {
+        vec![self.random_pointer]
+    }
 }
 
 pub struct BubbleSorter {

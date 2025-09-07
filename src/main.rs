@@ -4,7 +4,7 @@ use clap::{Parser, ValueEnum};
 use rand::seq::SliceRandom;
 use raylib::prelude::*;
 
-use crate::sorters::{BubbleSorter, QuickSorter, Sorter};
+use crate::sorters::{BogoSorter, BubbleSorter, QuickSorter, Sorter};
 
 const WINDOW_WIDTH: i32 = 800;
 const WINDOW_HEIGHT: i32 = 600;
@@ -28,7 +28,7 @@ struct Args {
     #[arg(short, long, default_value_t = SortingAlgorithm::Quick)]
     algorithm: SortingAlgorithm,
 
-    #[arg(short, long, default_value_t = 1000)]
+    #[arg(short, long, default_value_t = 100)]
     num_elements: usize,
 }
 
@@ -40,7 +40,7 @@ fn create_data(num_elements: usize) -> Vec<usize> {
 
 fn create_sorter(alg: SortingAlgorithm, data_length: usize) -> Box<dyn Sorter> {
     match alg {
-        SortingAlgorithm::Bogo => todo!(),
+        SortingAlgorithm::Bogo => Box::new(BogoSorter::new()),
         SortingAlgorithm::Bubble => Box::new(BubbleSorter::new(data_length)),
         SortingAlgorithm::Quick => Box::new(QuickSorter::new(data_length)),
     }

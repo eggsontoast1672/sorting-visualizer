@@ -1,10 +1,18 @@
-# Visualizing Sorting Algorithms
+# Sorting Visualizer
 
 https://github.com/lunathanael/visualizing-sorting/assets/84255305/15ff4859-7d44-4427-9f07-4d7df815da3b
 
-Everybody and their mother have certainly seen those YouTube videos of the
-sorting algorithms moving the bars around so you get to see what each one does.
-This is basically that.
+At this point, most people have seen those YouTube videos of the sorting
+algorithms moving the bars around so you get to see the how they work. This is
+basically that. Currently, the program works via a command line interface
+whereby you select the algorithm you want and the number of elements to sort.
+The algorithms currently supported are the following:
+
+- Bogo sort
+- Bubble sort
+- Quick sort
+
+## License
 
 This code is licensed under the MIT license, please follow the terms and
 conditions if you would like to use this code. Essentially, you can do what you

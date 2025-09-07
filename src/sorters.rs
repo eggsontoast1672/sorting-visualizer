@@ -107,6 +107,8 @@ impl QuickSorter {
         }
 
         let Some((low, high)) = self.stack.pop() else {
+            // Fix weird swapping bug
+            self.left_pointer = self.current_high;
             return true;
         };
 

@@ -1,7 +1,5 @@
 # Sorting Visualizer
 
-https://github.com/lunathanael/visualizing-sorting/assets/84255305/15ff4859-7d44-4427-9f07-4d7df815da3b
-
 At this point, most people have seen those YouTube videos of the sorting
 algorithms moving the bars around so you get to see the how they work. This is
 basically that. Currently, the program works via a command line interface

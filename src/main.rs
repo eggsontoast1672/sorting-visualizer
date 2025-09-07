@@ -6,8 +6,8 @@ use raylib::prelude::*;
 
 use crate::sorters::{BogoSorter, BubbleSorter, QuickSorter, Sorter};
 
-const WINDOW_WIDTH: i32 = 800;
-const WINDOW_HEIGHT: i32 = 600;
+const WINDOW_WIDTH: i32 = 1920;
+const WINDOW_HEIGHT: i32 = 1080;
 
 #[derive(Clone, Debug, ValueEnum)]
 enum SortingAlgorithm {
@@ -86,6 +86,8 @@ fn main() {
 
     let mut data = create_data(args.num_elements);
     let mut sorter = create_sorter(args.algorithm, data.len());
+
+    std::thread::sleep(std::time::Duration::from_secs(15));
 
     while !rl.window_should_close() {
         let is_done = sorter.step(&mut data);

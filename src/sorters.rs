@@ -101,7 +101,8 @@ impl QuickSorter {
             self.stack.push((self.left_pointer + 1, self.current_high));
         }
 
-        if self.current_low < self.left_pointer - 1 {
+        // We have to do this extra check so that the computation doesn't overflow (lame)
+        if self.left_pointer > 0 && self.current_low < self.left_pointer - 1 {
             self.stack.push((self.current_low, self.left_pointer - 1));
         }
 
